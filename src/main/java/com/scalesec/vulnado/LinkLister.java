@@ -35,4 +35,8 @@ public class LinkLister {
       throw new BadRequest(e.getMessage());
     }
   }
+
+  private LinkLister() {
+    //This constructor is intentionally empty.
+  }
 }
