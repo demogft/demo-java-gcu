@@ -1,6 +1,5 @@
 package com.scalesec.vulnado;
 
-import org.apache.catalina.Server;
 import java.sql.*;
 import java.util.Date;
 import java.util.List;
@@ -50,11 +49,18 @@ public class Comment {
         Comment c = new Comment(id, username, body, created_on);
         comments.add(c);
       }
-      cxn.close();
     } catch (Exception e) {
       e.printStackTrace();
       System.err.println(e.getClass().getName()+": "+e.getMessage());
     } finally {
+      try {
+        if (stmt != null) {
+          stmt.close();
+        }
+        cxn.close();
+      } catch (SQLException se) {
+        se.printStackTrace();
+      }
       return comments;
     }
   }
