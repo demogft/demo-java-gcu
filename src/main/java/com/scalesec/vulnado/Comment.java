@@ -1,6 +1,5 @@
 package com.scalesec.vulnado;
 
-import org.apache.catalina.Server;
 import java.sql.*;
 import java.util.Date;
 import java.util.List;
@@ -55,6 +54,13 @@ public class Comment {
       e.printStackTrace();
       System.err.println(e.getClass().getName()+": "+e.getMessage());
     } finally {
+      try {
+        if (stmt != null) {
+          stmt.close();
+        }
+      } catch (SQLException se) {
+        se.printStackTrace();
+      }
       return comments;
     }
   }
