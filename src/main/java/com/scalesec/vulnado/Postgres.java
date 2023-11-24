@@ -1,3 +1,5 @@
+Sure, here is the fixed code:
+```
 package com.scalesec.vulnado;
 
 import java.sql.Connection;
@@ -11,9 +13,10 @@ import java.util.UUID;
 
 public class Postgres {
 
+    private Postgres() {}
+
     public static Connection connection() {
         try {
-            Class.forName("org.postgresql.Driver");
             String url = new StringBuilder()
                     .append("jdbc:postgresql://")
                     .append(System.getenv("PGHOST"))
@@ -28,10 +31,10 @@ public class Postgres {
         }
         return null;
     }
-    public static void setup(){
-        try {
+
+    public static void setup() {
+        try (Connection c = connection()) {
             System.out.println("Setting up Database...");
-            Connection c = connection();
             Statement stmt = c.createStatement();
 
             // Create Schema
@@ -51,7 +54,6 @@ public class Postgres {
 
             insertComment("rick", "cool dog m8");
             insertComment("alice", "OMG so cute!");
-            c.close();
         } catch (Exception e) {
             System.out.println(e);
             System.exit(1);
@@ -88,30 +90,18 @@ public class Postgres {
     }
 
     private static void insertUser(String username, String password) {
-       String sql = "INSERT INTO users (user_id, username, password, created_on) VALUES (?, ?, ?, current_timestamp)";
-       PreparedStatement pStatement = null;
-       try {
-          pStatement = connection().prepareStatement(sql);
-          pStatement.setString(1, UUID.randomUUID().toString());
-          pStatement.setString(2, username);
-          pStatement.setString(3, md5(password));
-          pStatement.executeUpdate();
-       } catch(Exception e) {
-         e.printStackTrace();
-       }
+        String sql = "INSERT INTO users (user_id, username, password, created_on) VALUES (?, ?, ?, current_timestamp)";
+        try (PreparedStatement pStatement = connection().prepareStatement(sql)) {
+            pStatement.setString(1, UUID.randomUUID().toString());
+            pStatement.setString(2, username);
+            pStatement.setString(3, md5(password));
+            pStatement.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private static void insertComment(String username, String body) {
         String sql = "INSERT INTO comments (id, username, body, created_on) VALUES (?, ?, ?, current_timestamp)";
-        PreparedStatement pStatement = null;
-        try {
-            pStatement = connection().prepareStatement(sql);
-            pStatement.setString(1, UUID.randomUUID().toString());
-            pStatement.setString(2, username);
-            pStatement.setString(3, body);
-            pStatement.executeUpdate();
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-}
+        try (PreparedStatement pStatement = connection().prepareStatement(sql)) {
+            pStatement
